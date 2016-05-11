@@ -54,8 +54,8 @@ def createDockerFike(args):
 	unzip(zipFile, name)
 	dir = os.getcwd() + "/" + name
 	arr.append("ADD " + "./" + name + " /" + name)
-	arr.append("RUN chmod -R 777 //" + name)
-	arr.append("RUN cd /" + name + " && pwd")
+	arr.append("RUN chmod -R 777 /" + name)
+	arr.append("CMD " + cmd)
 
 	fileName = "videoDockerFile" + "_" + str(int(time.time())) + "_" + str(random.randint(1, 1000))
 	fw = open(fileName, "w")
@@ -66,26 +66,26 @@ def createDockerFike(args):
 	return fileName
 
 def spawnContainer(containerName, fileName, name, cmd):
-	call(["docker-machine", "create", "--driver", "virtualbox", "video"])
-	os.system("eval docker-machine env video")
-	os.system("docker build -t " + containerName + " -f " + fileName + " .")
-	run_cmd = "docker run -itd -P -w " + "/" + name + " --name " + containerName + " " + containerName + " " + cmd
-	print run_cmd
-	os.system(run_cmd)
+	runCmd("docker build -t " + containerName + " -f " + fileName + " .")
+	runCmd("docker run -itd -P -w " + "/" + name + " --name " + containerName + " " + containerName + " " + cmd)
 
 def checklogs(containerName, fileName):
-	os.system("docker logs " + containerName);
-	os.system("docker logs --tail=100 " + containerName + " >" + fileName + ".log")
+	runCmd("docker logs " + containerName);
+	runCmd("docker logs --tail=100 " + containerName + " >" + fileName + ".log")
 
 def rmContainer(containerName):
-	os.system("docker stop " + containerName);
-	os.system("docker rm " + containerName);
+	runCmd("docker stop " + containerName);
+	runCmd("docker rm " + containerName);
+
+def runCmd(cmd):
+	print cmd
+	os.system(cmd)
 
 # An interface to be called by Pipeline
 def createContainer():
-	containerName="video"
 	args = parseCmdLineArgs()
 	fileName = createDockerFike(args)
+	containerName = args.name
 	spawnContainer(containerName, fileName, args.name, args.cmd)
 	checklogs(containerName, fileName)
 	rmContainer(containerName)
