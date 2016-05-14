@@ -12,7 +12,7 @@ def parseCmdLineArgs():
         parser = argparse.ArgumentParser(description='Invoke Docker container')
         parser.add_argument('--image', metavar='Image',
                 default='ubuntu', help='OS ImageAWS Region (Eg: ubuntu)')
-        parser.add_argument('--pathOfZipFile', metavar='Path to ZipFile',
+        parser.add_argument('--zip', metavar='Path to ZipFile',
                 help='Path to Zip of the executable to be run in container')
         parser.add_argument('--cmd', metavar='Command',
                 help='The command to be run')
@@ -33,14 +33,14 @@ def unzip(zipFile, name):
 		zip_ref = zipfile.ZipFile(zipFile, 'r')
 		if os.path.exists(dir) == False:
 			os.mkdir(dir)
-		zip_ref.extractall(dir)
+		zip_ref.extractall(os.getcwd())
 		zip_ref.close()
 
 # A routine to create docker file based on args
 def createDockerFike(args):
 	arr = []
 	image = args.image
-	zipFile = args.pathOfZipFile
+	zipFile = args.zip
 	cmd = args.cmd
 	maintainer = args.maintainer
 	name = args.name
@@ -55,9 +55,9 @@ def createDockerFike(args):
 	dir = os.getcwd() + "/" + name
 	arr.append("ADD " + "./" + name + " /" + name)
 	arr.append("CMD chmod -R 777 /" + name)
-	arr.append("CMD " + cmd)
+	arr.append("CMD ls")
 
-	fileName = "videoDockerFile" + "_" + str(int(time.time())) + "_" + str(random.randint(1, 1000))
+	fileName = getFileName()
 	fw = open(fileName, "w")
 	for i in arr:
 		fw.write(i +"\n")
@@ -65,6 +65,9 @@ def createDockerFike(args):
 	fw.close()
 	return fileName
 
+def getFileName():
+	return "videoDockerFile" + "_" + str(int(time.time())) + "_" + str(random.randint(1, 1000))
+	
 def spawnContainer(containerName, fileName, name, cmd):
 	runCmd("docker build -t " + containerName + " -f " + fileName + " .")
 	runCmd("docker run -itd -P -w " + "/" + name + " --name " + containerName + " " + containerName + " " + cmd)
