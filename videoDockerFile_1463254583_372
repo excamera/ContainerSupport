@@ -1,0 +1,9 @@
+FROM ubuntu
+MAINTAINER Rahul Bhalerao
+RUN \
+	apt-get update && \
+	apt-get install -y curl git man unzip vim wget python && \
+	rm -rf /var/lib/apt/lists/*
+ADD ./helloworld /helloworld
+CMD chmod -R 777 /helloworld
+CMD ./helloworld

@@ -54,7 +54,7 @@ def createDockerFike(args):
 	unzip(zipFile, name)
 	dir = os.getcwd() + "/" + name
 	arr.append("ADD " + "./" + name + " /" + name)
-	arr.append("RUN chmod -R 777 /" + name)
+	arr.append("CMD chmod -R 777 /" + name)
 	arr.append("CMD " + cmd)
 
 	fileName = "videoDockerFile" + "_" + str(int(time.time())) + "_" + str(random.randint(1, 1000))
