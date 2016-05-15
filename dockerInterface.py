@@ -5,6 +5,7 @@ import time
 import random
 import re
 from subprocess import call
+from time import sleep
 import argparse
 
 # Parser for Command line arguments
@@ -29,10 +30,7 @@ def parseCmdLineArgs():
 def unzip(zipFile, name):
 	print zipFile
 	if zipFile:
-		dir = os.getcwd() + "/" + name
 		zip_ref = zipfile.ZipFile(zipFile, 'r')
-		if os.path.exists(dir) == False:
-			os.mkdir(dir)
 		zip_ref.extractall(os.getcwd())
 		zip_ref.close()
 
@@ -76,29 +74,46 @@ def getFileName():
 	return "videoDockerFile" + "_" + str(int(time.time())) + "_" + str(random.randint(1, 1000))
 	
 def spawnContainer(containerName, fileName, name, cmd):
+	print("\n")
 	runCmd("docker build -t " + containerName + " -f " + fileName + " .")
+	print("\n")
 	runCmd("docker run -itd -P -w " + "/" + name + " --name " + containerName + " " + containerName + " " + cmd)
 
+def waitContainer(containerName):
+	print("\n\n")
+	run = True
+	while run:
+	    run = runCmd("docker inspect -f {{.State.Running}} " + containerName)
+	    print("Container : " + containerName + " still running processes. Waiting to complete...")
+	    sleep(2)
+
 def checklogs(containerName, fileName):
-	runCmd("docker logs " + containerName);
-	runCmd("docker logs --tail=100 " + containerName + " >" + fileName + ".log")
+	print("\n\n Logs:")
+	runCmd("docker logs --tail=100 " + containerName);
 
 def rmContainer(containerName):
+	print("\n\n")
 	runCmd("docker stop " + containerName);
 	runCmd("docker rm " + containerName);
 
 def runCmd(cmd):
 	print cmd
-	os.system(cmd)
+	return os.system(cmd)
 
 # An interface to be called by Pipeline
 def createContainer():
 	args = parseCmdLineArgs()
 	fileName = createDockerFike(args)
-	containerName = args.name
+	containerName = args.name.lower()
+	cit_start = time()
 	spawnContainer(containerName, fileName, args.name, args.cmd)
+	cit_end = time()
+	waitContainer(containerName)
+	run_end = time()
 	checklogs(containerName, fileName)
 	rmContainer(containerName)
+	print "Container Initialization time : " + (cit_end-cit_start)
+	print "Running lambda took : " + (run_end-cit_end)
 
 if __name__ == "__main__":
 	createContainer()
