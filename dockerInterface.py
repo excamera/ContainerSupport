@@ -47,12 +47,19 @@ def createDockerFike(args):
 
 	arr.append("FROM " + image)
 	arr.append("MAINTAINER " + maintainer)
-	arr.append("RUN " + "\\")
-	arr.append("	apt-get update && " + "\\")
-	arr.append("	apt-get install -y curl git man unzip vim wget python && " +  "\\")
-	arr.append("	rm -rf /var/lib/apt/lists/*")
+	arr.append("RUN apt-get update")
+	arr.append("RUN apt-get install -y curl git man unzip vim wget python software-properties-common python-software-properties")
+	arr.append("RUN DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade")
+	arr.append("RUN DEBIAN_FRONTEND=noninteractive apt-get -y install python-software-properties")
+	arr.append("RUN DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common")
+	arr.append("RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:mc3man/trusty-media")
+	arr.append("RUN apt-get update")
+	arr.append("RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ffmpeg gstreamer0.10-ffmpeg")
+	arr.append("RUN rm -rf /var/lib/apt/lists/*")
+	
 	unzip(zipFile, name)
 	dir = os.getcwd() + "/" + name
+
 	arr.append("ADD " + "./" + name + " /" + name)
 	arr.append("CMD chmod -R 777 /" + name)
 	arr.append("CMD ls")
