@@ -5,3 +5,6 @@
 
 To Run the script:
 python dockerInterface.py --zip grayscaleLambda.zip --name grayscaleLambda --cmd "python ./lambdaMain.py MM.mp4 MM.mp4" --image "ubuntu:14.04"
+
+To Run the server:
+python runServer.py
