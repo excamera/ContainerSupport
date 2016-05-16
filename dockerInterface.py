@@ -47,12 +47,14 @@ def createDockerFike(args):
 	arr.append("MAINTAINER " + maintainer)
 	arr.append("RUN apt-get update")
 	arr.append("RUN apt-get install -y curl git man unzip vim wget python software-properties-common python-software-properties")
+	arr.append("RUN apt-get install -y python-dev python-distribute python-pip")
 	arr.append("RUN DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade")
 	arr.append("RUN DEBIAN_FRONTEND=noninteractive apt-get -y install python-software-properties")
 	arr.append("RUN DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common")
 	arr.append("RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:mc3man/trusty-media")
 	arr.append("RUN apt-get update")
 	arr.append("RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ffmpeg gstreamer0.10-ffmpeg")
+	arr.append("RUN pip install awscli boto3")
 	arr.append("RUN rm -rf /var/lib/apt/lists/*")
 	
 	unzip(zipFile, name)
@@ -100,11 +102,19 @@ def runCmd(cmd):
 	print cmd
 	return os.system(cmd)
 
+def getCmd(input_json):
+	return "python handler.py " + input_json
+
 def apiCreateContainer(args):
+	zip = args.zip
+	name = args.name
+	input_json = args.input_json
+	image = args.image
+	cmd = args.cmd
 	fileName = createDockerFike(args)
-        containerName = args.name.lower()
+        containerName = name.lower()
         cit_start = time.time()
-        spawnContainer(containerName, fileName, args.name, args.cmd)
+        spawnContainer(containerName, fileName, name, cmd)
         cit_end = time.time()
         waitContainer(containerName)
         run_end = time.time()
@@ -116,17 +126,7 @@ def apiCreateContainer(args):
 # An interface to be called by Pipeline
 def createContainer():
 	args = parseCmdLineArgs()
-	fileName = createDockerFike(args)
-	containerName = args.name.lower()
-	cit_start = time.time()
-	spawnContainer(containerName, fileName, args.name, args.cmd)
-	cit_end = time.time()
-	waitContainer(containerName)
-	run_end = time.time()
-	checklogs(containerName, fileName)
-	rmContainer(containerName)
-	print "Container Initialization time : " + str(cit_end-cit_start)
-	print "Running lambda took : " + str(run_end-cit_end)
+	apiCreateContainer(args)
 
 if __name__ == "__main__":
 	createContainer()
