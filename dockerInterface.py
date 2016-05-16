@@ -100,20 +100,33 @@ def runCmd(cmd):
 	print cmd
 	return os.system(cmd)
 
+def apiCreateContainer(args):
+	fileName = createDockerFike(args)
+        containerName = args.name.lower()
+        cit_start = time.time()
+        spawnContainer(containerName, fileName, args.name, args.cmd)
+        cit_end = time.time()
+        waitContainer(containerName)
+        run_end = time.time()
+        checklogs(containerName, fileName)
+        rmContainer(containerName)
+        print "Container Initialization time : " + str(cit_end-cit_start)
+        print "Running lambda took : " + str(run_end-cit_end)
+
 # An interface to be called by Pipeline
 def createContainer():
 	args = parseCmdLineArgs()
 	fileName = createDockerFike(args)
 	containerName = args.name.lower()
-	cit_start = time()
+	cit_start = time.time()
 	spawnContainer(containerName, fileName, args.name, args.cmd)
-	cit_end = time()
+	cit_end = time.time()
 	waitContainer(containerName)
-	run_end = time()
+	run_end = time.time()
 	checklogs(containerName, fileName)
 	rmContainer(containerName)
-	print "Container Initialization time : " + (cit_end-cit_start)
-	print "Running lambda took : " + (run_end-cit_end)
+	print "Container Initialization time : " + str(cit_end-cit_start)
+	print "Running lambda took : " + str(run_end-cit_end)
 
 if __name__ == "__main__":
 	createContainer()
