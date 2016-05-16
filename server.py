@@ -40,7 +40,7 @@ def invokeContainer(zipFile, input_json):
     name = j['lambda_name']
     video = j['key']
     image = "ubuntu:14.04"
-    cmd = getCmd(input_json)
+    cmd = getCmd(video)
     env = environment(zipFile, name, input_json, image, cmd)
     dockerInterface.apiCreateContainer(env)
 

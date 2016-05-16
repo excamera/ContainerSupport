@@ -102,9 +102,6 @@ def runCmd(cmd):
 	print cmd
 	return os.system(cmd)
 
-def getCmd(input_json):
-	return "python handler.py " + input_json
-
 def apiCreateContainer(args):
 	zip = args.zip
 	name = args.name
